@@ -1,0 +1,5 @@
+com/fsad/sportsbooking/model/Facility.class
+com/fsad/sportsbooking/repository/FacilityRepository.class
+com/fsad/sportsbooking/service/FacilityService.class
+com/fsad/sportsbooking/SportsBookingApplication.class
+com/fsad/sportsbooking/controller/FacilityController.class
