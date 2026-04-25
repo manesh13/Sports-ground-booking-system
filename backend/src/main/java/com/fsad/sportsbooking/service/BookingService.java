@@ -10,17 +10,21 @@ import java.util.List;
 @Service
 public class BookingService {
 
-    private final BookingRepository bookingRepository;
+    private final BookingRepository repository;
 
-    public BookingService(BookingRepository bookingRepository) {
-        this.bookingRepository = bookingRepository;
+    public BookingService(BookingRepository repository) {
+        this.repository = repository;
     }
 
-    // Citizen creates booking
+    public List<Booking> getBookingsByCitizen(String citizenName) {
+        return repository.findByCitizenName(citizenName);
+    }
+
+
     public Booking createBooking(Booking booking) {
 
-        boolean overlap =
-                bookingRepository.existsByFacilityIdAndStartTimeLessThanAndEndTimeGreaterThan(
+        boolean overlap = repository
+                .existsByFacilityIdAndStartTimeLessThanAndEndTimeGreaterThan(
                         booking.getFacilityId(),
                         booking.getEndTime(),
                         booking.getStartTime()
@@ -31,29 +35,24 @@ public class BookingService {
         }
 
         booking.setStatus("REQUESTED");
-        return bookingRepository.save(booking);
+        return repository.save(booking);
     }
 
-    // Manager views all bookings
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+        return repository.findAll();
     }
 
-    // Manager approves booking
     public Booking approve(Long id) {
-        Booking booking = bookingRepository.findById(id)
+        Booking booking = repository.findById(id)
                 .orElseThrow(() -> new BookingException("Booking not found"));
-
         booking.setStatus("APPROVED");
-        return bookingRepository.save(booking);
+        return repository.save(booking);
     }
 
-    // Manager rejects booking
     public Booking reject(Long id) {
-        Booking booking = bookingRepository.findById(id)
+        Booking booking = repository.findById(id)
                 .orElseThrow(() -> new BookingException("Booking not found"));
-
         booking.setStatus("REJECTED");
-        return bookingRepository.save(booking);
+        return repository.save(booking);
     }
 }

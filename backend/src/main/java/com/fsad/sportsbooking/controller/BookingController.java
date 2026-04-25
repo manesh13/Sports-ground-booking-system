@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class BookingController {
 
     private final BookingService service;
@@ -19,42 +19,50 @@ public class BookingController {
         this.service = service;
     }
 
-    // ✅ CITIZEN can create booking
     @PostMapping
-    public Booking createBooking(
-            @RequestBody Booking booking,
-            @RequestHeader("Role") String role
-    ) {
+    public Booking create(@RequestBody Booking booking,
+                          @RequestHeader("Role") String role) {
         RoleValidator.requireRole(role, UserRole.CITIZEN);
         return service.createBooking(booking);
     }
 
-    // ✅ MANAGER can view all bookings
     @GetMapping
-    public List<Booking> getAllBookings(
-            @RequestHeader("Role") String role
-    ) {
+    public List<Booking> list(@RequestHeader("Role") String role) {
         RoleValidator.requireRole(role, UserRole.MANAGER);
         return service.getAllBookings();
     }
 
-    // ✅ MANAGER approves
     @PutMapping("/{id}/approve")
-    public Booking approveBooking(
-            @PathVariable Long id,
-            @RequestHeader("Role") String role
-    ) {
+    public Booking approve(@PathVariable Long id,
+                           @RequestHeader("Role") String role) {
         RoleValidator.requireRole(role, UserRole.MANAGER);
         return service.approve(id);
     }
 
-    // ✅ MANAGER rejects
     @PutMapping("/{id}/reject")
-    public Booking rejectBooking(
-            @PathVariable Long id,
-            @RequestHeader("Role") String role
-    ) {
+    public Booking reject(@PathVariable Long id,
+                          @RequestHeader("Role") String role) {
         RoleValidator.requireRole(role, UserRole.MANAGER);
         return service.reject(id);
     }
+
+
+    @GetMapping("/my")
+    public List<Booking> myBookings(
+            @RequestHeader("Citizen-Name") String citizenName,
+            @RequestHeader("Role") String role
+    ) {
+        RoleValidator.requireRole(role, UserRole.CITIZEN);
+        return service.getBookingsByCitizen(citizenName);
+    }
+
+
+//    @DeleteMapping("/{id}")
+//    public void delete(
+//            @PathVariable Long id,
+//            @RequestHeader("Role") String role
+//    ) {
+//        RoleValidator.requireRole(role, UserRole.MANAGER);
+//        service.deleteById(id);
+//    }
 }

@@ -1,17 +1,13 @@
 package com.fsad.sportsbooking.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BookingException.class)
-    public ResponseEntity<String> handleBookingException(BookingException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ResponseEntity<String> handle(BookingException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

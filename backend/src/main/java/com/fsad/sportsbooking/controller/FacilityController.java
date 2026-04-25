@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/facilities")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class FacilityController {
 
  private final FacilityService service;
@@ -19,18 +19,14 @@ public class FacilityController {
   this.service = service;
  }
 
- // ✅ Anyone can view facilities (optional: restrict to CITIZEN)
  @GetMapping
- public List<Facility> getAllFacilities() {
+ public List<Facility> list() {
   return service.getAllFacilities();
  }
 
- // ✅ Only ADMIN can add facility
  @PostMapping
- public Facility addFacility(
-         @RequestBody Facility facility,
-         @RequestHeader("Role") String role
- ) {
+ public Facility add(@RequestBody Facility facility,
+                     @RequestHeader("Role") String role) {
   RoleValidator.requireRole(role, UserRole.ADMIN);
   return service.addFacility(facility);
  }

@@ -1,28 +1,25 @@
 package com.fsad.sportsbooking.service;
 
-
 import com.fsad.sportsbooking.exception.BookingException;
 import com.fsad.sportsbooking.model.UserRole;
 
 public class RoleValidator {
 
-    public static void requireRole(String roleHeader, UserRole requiredRole) {
+    public static void requireRole(String role, UserRole expected) {
 
-        if (roleHeader == null) {
-            throw new BookingException("Role header is required");
+        if (role == null) {
+            throw new BookingException("Role header missing");
         }
 
-        UserRole actualRole;
+        UserRole actual;
         try {
-            actualRole = UserRole.valueOf(roleHeader);
-        } catch (IllegalArgumentException ex) {
-            throw new BookingException("Invalid role: " + roleHeader);
+            actual = UserRole.valueOf(role);
+        } catch (IllegalArgumentException e) {
+            throw new BookingException("Invalid role: " + role);
         }
 
-        if (actualRole != requiredRole) {
-            throw new BookingException(
-                    "Access denied. Required role: " + requiredRole
-            );
+        if (actual != expected) {
+            throw new BookingException("Access denied");
         }
     }
 }
