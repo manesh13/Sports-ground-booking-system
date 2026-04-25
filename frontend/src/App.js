@@ -3,13 +3,14 @@ import "./styles.css";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ThemeToggle from "./components/ThemeToggle";
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState("login");
   const [dark, setDark] = useState(false);
 
-  /* Load theme only */
+  // ✅ Load theme on refresh
   useEffect(() => {
     const theme = localStorage.getItem("theme");
     if (theme === "dark") {
@@ -18,70 +19,36 @@ export default function App() {
     }
   }, []);
 
-  /* Sync dark mode */
+  // ✅ Sync theme
   useEffect(() => {
     document.body.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  /* ================= AUTH PAGES ================= */
-  if (!user) {
-    return (
-      <>
-        {/* Dark mode switch always visible */}
-        <div className="theme-switch">
-          <span>☀️</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={dark}
-              onChange={() => setDark(!dark)}
-            />
-            <span className="slider"></span>
-          </label>
-          <span>🌙</span>
-        </div>
+  return (
+    <>
+      {/* ✅ DARK THEME BUTTON ALWAYS VISIBLE */}
+      <ThemeToggle dark={dark} setDark={setDark} />
 
-        {page === "login" ? (
+      {!user ? (
+        page === "login" ? (
           <Login
-            onLogin={u => {
-              localStorage.setItem("user", JSON.stringify(u));
-              setUser(u);
-            }}
+            onLogin={setUser}
             goToSignup={() => setPage("signup")}
           />
         ) : (
           <Signup goToLogin={() => setPage("login")} />
-        )}
-      </>
-    );
-  }
-
-  /* ================= DASHBOARD ================= */
-  return (
-    <>
-      {/* Dark mode switch */}
-      <div className="theme-switch">
-        <span>☀️</span>
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={dark}
-            onChange={() => setDark(!dark)}
-          />
-          <span className="slider"></span>
-        </label>
-        <span>🌙</span>
-      </div>
-
-      <Dashboard
-        user={user}
-        onLogout={() => {
-          localStorage.removeItem("user");
-          setUser(null);
-          setPage("login");
-        }}
-      />
+        )
+      ) : (
+        <Dashboard
+          user={user}
+          onLogout={() => {
+            localStorage.removeItem("user");
+            setUser(null);
+            setPage("login");
+          }}
+        />
+      )}
     </>
   );
 }

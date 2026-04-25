@@ -1,50 +1,83 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import api from "../api";
 import BookingForm from "../components/BookingForm";
-import ManagerBookingList from "../components/ManagerBookingList";
 import MyBookings from "../components/MyBookings";
+import ManagerBookingList from "../components/ManagerBookingList";
 
 export default function Dashboard({ user, onLogout }) {
   const [bookings, setBookings] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
+  /* =========================
+     Load bookings for manager
+     ========================= */
   const loadBookings = () => {
     api.get("/bookings", {
-      headers: { Role: "MANAGER" }
-    }).then(res => setBookings(res.data));
+      headers: { Role: user.role }
+    })
+    .then(res => setBookings(res.data))
+    .catch(() => {});
   };
 
   useEffect(() => {
-    loadBookings();
+    if (user.role === "MANAGER" || user.role === "ADMIN") {
+      loadBookings();
+    }
   }, []);
 
   return (
     <div className="container">
+      {/* ===== Title ===== */}
       <h1>Sports Ground Booking System</h1>
 
-      {/* ✅ LOGOUT – bottom center BEFORE forms */}
+      {/* ===== Logout ===== */}
       <div className="logout-container">
         <button className="logout-btn" onClick={onLogout}>
           Logout
         </button>
       </div>
 
-      <div className="grid">
-        {/* Citizen Section */}
-        <div className="card">
-          <h2>Sports Arena Booking</h2>
-          {user.role === "CITIZEN" && (
-            <BookingForm refresh={loadBookings} />
-          )}
+      {/* ===== SIDE-BY-SIDE LAYOUT ===== */}
+      <div className="content-center">
+        <div className="grid">
+
+          {/* ========= LEFT CARD ========= */}
+          <div className="card">
+            <h2>Sports Arena Booking</h2>
+
+            {user.role === "CITIZEN" && (
+              <BookingForm
+                refresh={() => setRefreshKey(prev => prev + 1)}
+              />
+            )}
+          </div>
+
+          {/* ========= RIGHT CARD ========= */}
+          <div className="card">
+            <h2>
+              {user.role === "CITIZEN"
+                ? "Your Bookings"
+                : "Pending Approvals"}
+            </h2>
+
+            {user.role === "CITIZEN" && (
+              <MyBookings
+                citizenName={user.email}
+                refreshTrigger={refreshKey}
+              />
+            )}
+
+            {(user.role === "MANAGER" || user.role === "ADMIN") && (
+              <ManagerBookingList
+                bookings={bookings}
+                refresh={() => {
+                  loadBookings();
+                  setRefreshKey(prev => prev + 1);
+                }}
+              />
+            )}
+          </div>
         </div>
-
-        {/* Manager Section */}
-<div className="card">
-  <h2>Your Bookings</h2>
-
-  {user.role === "CITIZEN" && (
-<MyBookings citizenName={user.name} />  )}
-</div>
-
       </div>
     </div>
   );

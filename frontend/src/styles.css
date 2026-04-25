@@ -74,16 +74,18 @@ h1 {
    ====================================================== */
 
 .container {
-  max-width: 1200px;
+  width: 100%;        /* ✅ allow full screen width */
+  max-width: none;   /* ✅ remove constraint */
   margin: auto;
   padding: 30px;
 }
 
 .grid {
   display: flex;
-  gap: 24px;                     /* ⬇ reduced from 40px */
+  gap: 32px;
   justify-content: center;
-  flex-wrap: wrap;               /* ✅ safe on smaller screens */
+  align-items: flex-start;
+  flex-wrap: nowrap;   /* ✅ KEEP BOTH CARDS ON SAME ROW */
 }
 
 /* ======================================================
@@ -95,8 +97,9 @@ h1 {
   padding: 18px;                 /* ⬇ reduced from 24px */
   border-radius: 14px;
   box-shadow: var(--shadow);
-  max-width: 480px;              /* ⬇ slightly narrower */
-  width: 100%;
+  width: 520px;        /* ✅ SAME SIZE LEFT & RIGHT */
+  max-width: 520px;
+  min-height: 520px;
 }
 
 
@@ -470,4 +473,20 @@ select {
   justify-content: center;
   align-items: flex-start;       /* ✅ allow natural top flow */
   margin-top: 20px;
+}
+
+/* Proper show-password layout */
+.show-password-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted-text);
+  margin-bottom: 6px;
+}
+
+.show-password-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }

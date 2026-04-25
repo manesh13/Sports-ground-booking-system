@@ -1,18 +1,23 @@
 import { useState } from "react";
+import api from "../api";
 
 export default function Login({ onLogin, goToSignup }) {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("CITIZEN");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const submit = () => {
-    if (!email) {
-      alert("Enter email");
-      return;
-    }
+    setError("");
 
-    // ✅ Simulated login
-    localStorage.setItem("user", JSON.stringify({ email, role }));
-    onLogin({ email, role });
+    api.post("/users/login", { email, password })
+      .then(res => {
+        onLogin(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
+      })
+      .catch(() => {
+        setError("Invalid email or password");
+      });
   };
 
   return (
@@ -21,22 +26,38 @@ export default function Login({ onLogin, goToSignup }) {
         <h2>Login</h2>
 
         <input
+          type="email"
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
         />
 
-        <select value={role} onChange={e => setRole(e.target.value)}>
-          <option value="CITIZEN">Citizen</option>
-          <option value="MANAGER">Manager</option>
-        </select>
+        <input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />
+
+        {/* ✅ FIXED SHOW PASSWORD */}
+        <div className="show-password-row">
+          <input
+            type="checkbox"
+            id="showPass"
+            checked={showPassword}
+            onChange={() => setShowPassword(!showPassword)}
+          />
+          <label htmlFor="showPass">Show password</label>
+        </div>
+
+        {error && <p className="error-text">{error}</p>}
 
         <button className="primary-btn" onClick={submit}>
           Login
         </button>
 
         <p className="link" onClick={goToSignup}>
-          Create an account
+          Create account
         </p>
       </div>
     </div>

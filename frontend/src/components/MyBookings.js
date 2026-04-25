@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export default function MyBookings({ citizenName }) {
+export default function MyBookings({ citizenName, refreshTrigger }) {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
@@ -15,16 +15,14 @@ export default function MyBookings({ citizenName }) {
     })
     .then(res => setBookings(res.data))
     .catch(() => {});
-  }, [citizenName]);
+  }, [citizenName, refreshTrigger]); // ✅ refresh when trigger changes
+
+  if (bookings.length === 0) {
+    return <p>No bookings yet</p>;
+  }
 
   return (
-    <div style={{ marginTop: "20px" }}>
-      <h3>My Bookings</h3>
-
-      {bookings.length === 0 && (
-        <p>No bookings yet</p>
-      )}
-
+    <>
       {bookings.map(b => (
         <div key={b.id} className="booking-card">
           <p><b>Facility:</b> {b.facilityId}</p>
@@ -37,6 +35,6 @@ export default function MyBookings({ citizenName }) {
           </p>
         </div>
       ))}
-    </div>
+    </>
   );
 }
