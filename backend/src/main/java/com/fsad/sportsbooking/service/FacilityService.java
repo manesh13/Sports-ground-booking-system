@@ -1,10 +1,25 @@
 package com.fsad.sportsbooking.service;
-import java.util.*;import org.springframework.stereotype.Service;
-import com.fsad.sportsbooking.repository.FacilityRepository;
+
 import com.fsad.sportsbooking.model.Facility;
+import com.fsad.sportsbooking.repository.FacilityRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 @Service
-public class FacilityService{
- private final FacilityRepository repo;
- public FacilityService(FacilityRepository repo){this.repo=repo;}
- public List<Facility> all(){return repo.findAll();}
- public Facility add(Facility f){return repo.save(f);} }
+public class FacilityService {
+
+ private final FacilityRepository repository;
+
+ public FacilityService(FacilityRepository repository) {
+  this.repository = repository;
+ }
+
+ public List<Facility> getAllFacilities() {
+  return repository.findAll();
+ }
+
+ public Facility addFacility(Facility facility) {
+  return repository.save(facility);
+ }
+}
