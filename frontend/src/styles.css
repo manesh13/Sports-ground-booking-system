@@ -512,3 +512,7 @@ select {
   margin-bottom: 10px;
   text-align: center;
 }
+
+.status.APPROVED { color: #4caf50; }
+.status.REJECTED { color: #f44336; }
+.status.REQUESTED { color: #ff9800; }
