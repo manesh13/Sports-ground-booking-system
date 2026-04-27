@@ -16,7 +16,8 @@ export default function Login({ onLogin, goToSignup }) {
         localStorage.setItem("user", JSON.stringify(res.data));
       })
       .catch(() => {
-        setError("Invalid email or password");
+        // ✅ Single friendly error message
+        setError("Invalid username or password");
       });
   };
 
@@ -29,6 +30,7 @@ export default function Login({ onLogin, goToSignup }) {
           type="email"
           placeholder="Email"
           value={email}
+          className={error ? "input-error" : ""}
           onChange={e => setEmail(e.target.value)}
         />
 
@@ -36,21 +38,25 @@ export default function Login({ onLogin, goToSignup }) {
           type={showPassword ? "text" : "password"}
           placeholder="Password"
           value={password}
+          className={error ? "input-error" : ""}
           onChange={e => setPassword(e.target.value)}
         />
 
-        {/* ✅ FIXED SHOW PASSWORD */}
         <div className="show-password-row">
           <input
             type="checkbox"
-            id="showPass"
             checked={showPassword}
             onChange={() => setShowPassword(!showPassword)}
           />
-          <label htmlFor="showPass">Show password</label>
+          <label>Show password</label>
         </div>
 
-        {error && <p className="error-text">{error}</p>}
+        {/* ✅ Styled error message */}
+        {error && (
+          <div className="error-box">
+            {error}
+          </div>
+        )}
 
         <button className="primary-btn" onClick={submit}>
           Login

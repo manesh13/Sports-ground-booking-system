@@ -490,3 +490,25 @@ select {
   height: 16px;
   cursor: pointer;
 }
+
+/* ==========================
+   ERROR STATES (LOGIN)
+   ========================== */
+
+/* Red border on error */
+.input-error {
+  border: 2px solid #e53935 !important;
+  background: #fff5f5;
+}
+
+/* Error message box */
+.error-box {
+  background: #fdecea;
+  color: #c62828;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  text-align: center;
+}

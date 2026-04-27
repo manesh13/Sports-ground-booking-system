@@ -11,22 +11,21 @@ export default function Signup({ goToLogin }) {
   const submit = () => {
     setError("");
 
-    if (!email || !password) {
-      setError("All fields are required");
-      return;
-    }
-
     api.post("/users/register", {
       email,
       password,
       role
     })
     .then(() => {
-      alert("✅ Account created");
+      alert("✅ Account created successfully");
       goToLogin();
     })
     .catch(err => {
-      setError(err.response?.data || "Signup failed");
+      if (err.response?.status === 409) {
+        setError("User already exists");
+      } else {
+        setError("Failed to create account");
+      }
     });
   };
 
@@ -38,6 +37,7 @@ export default function Signup({ goToLogin }) {
         <input
           placeholder="Email"
           value={email}
+          className={error ? "input-error" : ""}
           onChange={e => setEmail(e.target.value)}
         />
 
@@ -45,29 +45,36 @@ export default function Signup({ goToLogin }) {
           type={showPassword ? "text" : "password"}
           placeholder="Password"
           value={password}
+          className={error ? "input-error" : ""}
           onChange={e => setPassword(e.target.value)}
         />
 
-        {/* ✅ SHOW PASSWORD */}
         <div className="show-password-row">
           <input
             type="checkbox"
-            id="showPassSignup"
             checked={showPassword}
             onChange={() => setShowPassword(!showPassword)}
           />
-          <label htmlFor="showPassSignup">Show password</label>
+          <label>Show password</label>
         </div>
 
-        {/* ✅ ROLE SELECTION */}
         <label>User Role</label>
-        <select value={role} onChange={e => setRole(e.target.value)}>
+        <select
+          value={role}
+          className={error ? "input-error" : ""}
+          onChange={e => setRole(e.target.value)}
+        >
           <option value="CITIZEN">Citizen</option>
           <option value="MANAGER">Manager</option>
           <option value="ADMIN">Admin</option>
         </select>
 
-        {error && <p className="error-text">{error}</p>}
+        {/* ✅ SAME ERROR BOX AS LOGIN */}
+        {error && (
+          <div className="error-box">
+            {error}
+          </div>
+        )}
 
         <button className="primary-btn" onClick={submit}>
           Create Account
