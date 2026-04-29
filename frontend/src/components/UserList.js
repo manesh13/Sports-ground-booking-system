@@ -5,7 +5,7 @@ export default function UserList({ users, refresh, allowDelete }) {
   const deleteUser = (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
-    api.delete(`/users/${id}`)
+    api.delete(`/admin/${id}`)
       .then(refresh)
       .catch(err => console.error(err));
   };
