@@ -3,20 +3,50 @@ import api from "../api";
 import BookingForm from "../components/BookingForm";
 import MyBookings from "../components/MyBookings";
 import ManagerBookingList from "../components/ManagerBookingList";
+import PastBookingList from "../components/PastBookingList";
+import UserList from "../components/UserList";
 
 export default function Dashboard({ user, onLogout }) {
   const [bookings, setBookings] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [managers, setManagers] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  /* ===========================
+     LOAD BOOKINGS (MANAGER ONLY)
+     =========================== */
   const loadBookings = () => {
     api.get("/bookings")
       .then(res => setBookings(res.data))
       .catch(() => {});
   };
 
+  /* ===========================
+     LOAD USERS (ADMIN ONLY)
+     =========================== */
+
+const loadUsers = () => {
+    api.get("/admin?role=ADMIN")
+    .then(res => {
+      const allUsers = res.data;
+
+      setUsers(allUsers.filter(u => u.role === "CITIZEN"));
+      setManagers(allUsers.filter(u => u.role === "MANAGER"));
+    })
+    .catch(() => {
+      setUsers([]);
+      setManagers([]);
+    });
+};
+
+
   useEffect(() => {
-    if (user.role !== "CITIZEN") {
+    if (user.role === "MANAGER") {
       loadBookings();
+    }
+
+    if (user.role === "ADMIN") {
+      loadUsers();
     }
   }, []);
 
@@ -33,33 +63,69 @@ export default function Dashboard({ user, onLogout }) {
       <div className="content-center">
         <div className="grid">
 
+          {/* ===========================
+             CITIZEN DASHBOARD
+             =========================== */}
           {user.role === "CITIZEN" && (
-            <div className="card">
-              <BookingForm
-                user={user}
-                refresh={() => setRefreshKey(prev => prev + 1)}
-              />
-            </div>
+            <>
+              <div className="card">
+                <BookingForm
+                  user={user}
+                  refresh={() => setRefreshKey(prev => prev + 1)}
+                />
+              </div>
+
+              <div className="card">
+                <h2>Your Bookings</h2>
+                <MyBookings refreshTrigger={refreshKey} />
+              </div>
+            </>
           )}
 
-          <div className="card">
-            <h2>
-              {user.role === "CITIZEN"
-                ? "Your Bookings"
-                : "Pending Approvals"}
-            </h2>
+          {/* ===========================
+             MANAGER DASHBOARD
+             =========================== */}
+          {user.role === "MANAGER" && (
+            <>
+              <div className="card">
+                <h2>Pending Approvals</h2>
+                <ManagerBookingList
+                  bookings={bookings}
+                  refresh={loadBookings}
+                />
+              </div>
 
-            {user.role === "CITIZEN" && (
-              <MyBookings refreshTrigger={refreshKey} />
-            )}
+              <div className="card">
+                <h2>Past Requests</h2>
+                <PastBookingList bookings={bookings} />
+              </div>
+            </>
+          )}
 
-            {(user.role === "MANAGER" || user.role === "ADMIN") && (
-              <ManagerBookingList
-                bookings={bookings}
-                refresh={loadBookings}
-              />
-            )}
-          </div>
+          {/* ===========================
+             ADMIN DASHBOARD (NO BOOKINGS)
+             =========================== */}
+          {user.role === "ADMIN" && (
+            <>
+              <div className="card">
+                <h2>Registered Users</h2>
+                <UserList
+                  users={users}
+                  refresh={loadUsers}
+                  allowDelete
+                />
+              </div>
+
+              <div className="card">
+                <h2>Managers</h2>
+                <UserList
+                  users={managers}
+                  refresh={loadUsers}
+                  allowDelete
+                />
+              </div>
+            </>
+          )}
 
         </div>
       </div>

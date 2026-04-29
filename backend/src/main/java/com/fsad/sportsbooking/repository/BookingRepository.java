@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    boolean existsByFacilityIdAndStartTimeLessThanAndEndTimeGreaterThan(
-            Long facilityId,
+    List<Booking> findByUserEmail(String userEmail);
+
+    boolean existsByFacilityNameAndStartTimeLessThanAndEndTimeGreaterThan(
+            String facilityName,
             LocalDateTime endTime,
             LocalDateTime startTime
     );
-
-    List<Booking> findByCitizenName(String citizenName);
 }

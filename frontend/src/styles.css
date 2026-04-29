@@ -26,6 +26,9 @@
   --reject: #e53935;
   --delete: #9e9e9e;
 
+  --booking-card-bg: #e9f6ff;        /* soft blue */
+  --booking-card-border: #d0e8fb;
+
   --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
@@ -42,15 +45,19 @@ body.dark {
   --input-bg: #262626;
   --border: #444;
 
-  --slot-bg: #2a2a2a;
-  --slot-hover: #333;
+
+  --slot-bg: #2a3446;     /* ✅ dark slate blue */
+  --slot-hover: #364159;
   --slot-active: #1976d2;
+
 
   --date-bg: #2a2a2a;
   --date-hover: #333;
   --date-active: #1976d2;
 
   --shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  --booking-card-bg: #253044;        /* deep blue-gray */
+  --booking-card-border: #344259
 }
 
 /* ======================================================
@@ -223,14 +230,21 @@ select {
   gap: 10px;
 }
 
+/* ==========================
+   TIME SLOTS – DARK MODE FIXED
+   ========================== */
+
 .slot {
   padding: 12px;
   border-radius: 10px;
-  font-size: 14px;               /* ⬇ slightly smaller text */
+  font-size: 14px;
+
   background: var(--slot-bg);
+  color: var(--text);
+
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .slot:hover {
@@ -513,6 +527,134 @@ select {
   text-align: center;
 }
 
-.status.APPROVED { color: #4caf50; }
-.status.REJECTED { color: #f44336; }
-.status.REQUESTED { color: #ff9800; }
+/* ==========================
+   CARD (SINGLE SOURCE OF TRUTH)
+   ========================== */
+
+.card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+
+  width: 520px;
+  max-width: 520px;
+  height: 560px;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* ✅ keeps content inside */
+}
+
+/* ==========================
+   BOOKINGS LIST (SCROLL AREA)
+   ========================== */
+
+.bookings-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.bookings-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookings-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 10px;
+}
+
+/* ==========================
+   BOOKING CARD (CITIZEN + MANAGER)
+   ========================== */
+
+.booking-card {
+  background: var(--booking-card-bg);
+  border: 1px solid var(--booking-card-border);
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.booking-card p {
+  margin: 4px 0;
+}
+
+/* ==========================
+   STATUS CHIPS (DARK SAFE)
+   ========================== */
+
+.status {
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+/* APPROVED */
+.status.APPROVED {
+  background: var(--approve);
+  color: white;
+}
+
+/* REJECTED */
+.status.REJECTED {
+  background: var(--reject);
+  color: white;
+}
+
+/* ==========================
+   CARD ACTIONS
+   ========================== */
+
+.card-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+
+}
+
+/* ==========================
+   DELETE BUTTON (ADMIN)
+   ========================== */
+
+.delete-btn {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.delete-btn:hover {
+  background: #b71c1c;
+}
+
+.delete-btn:active {
+  transform: scale(0.97);
+}
+
+/* Dark mode fine‑tuning */
+body.dark .delete-btn {
+  background: #c62828;
+}
+
+body.dark .delete-btn:hover {
+  background: #ad1f1f;
+}
+
+.booking-card p:last-of-type {
+  margin-bottom: 8px;
+}

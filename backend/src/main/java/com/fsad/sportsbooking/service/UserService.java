@@ -1,8 +1,11 @@
 package com.fsad.sportsbooking.service;
 
 import com.fsad.sportsbooking.model.User;
+import com.fsad.sportsbooking.model.UserRole;
 import com.fsad.sportsbooking.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -32,4 +35,14 @@ public class UserService {
 
         return user; // includes role
     }
+
+
+    public List<User> getUsersByRole(UserRole role) {
+        return repo.findByRole(role);
+    }
+
+    public void deleteUser(Long id) {
+        repo.deleteById(id);
+    }
+
 }

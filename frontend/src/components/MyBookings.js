@@ -1,32 +1,31 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export default function MyBookings({ citizenName, refreshTrigger }) {
+export default function MyBookings({ refreshTrigger }) {
   const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
-    if (!citizenName) return;
-
-    api.get("/bookings/my", {
-      headers: {
-        Role: "CITIZEN",
-        "Citizen-Name": citizenName
-      }
-    })
-    .then(res => setBookings(res.data))
-    .catch(() => {});
-  }, [citizenName, refreshTrigger]); // ✅ refresh when trigger changes
+    api.get("/bookings/my")
+      .then(res => setBookings(res.data))
+      .catch(() => setBookings([]));
+  }, [refreshTrigger]);
 
   if (bookings.length === 0) {
     return <p>No bookings yet</p>;
   }
 
   return (
-    <>
+    <div className="bookings-scroll">
       {bookings.map(b => (
         <div key={b.id} className="booking-card">
-          <p><b>Facility:</b> {b.facilityId}</p>
-          <p><b>Time:</b> {b.startTime} → {b.endTime}</p>
+          <p><b>Facility:</b> {b.facilityName}</p>
+
+          <p>
+            <b>Time:</b>{" "}
+{new Date(b.startTime).toLocaleDateString()} | {" "}
+{new Date(b.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} →
+{new Date(b.endTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </p>
           <p>
             <b>Status:</b>{" "}
             <span className={`status ${b.status}`}>
@@ -35,6 +34,6 @@ export default function MyBookings({ citizenName, refreshTrigger }) {
           </p>
         </div>
       ))}
-    </>
+    </div>
   );
 }

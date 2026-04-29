@@ -7,6 +7,7 @@ export default function BookingForm({ refresh }) {
   const [citizenName, setCitizenName] = useState("");
   const [facilities, setFacilities] = useState([]);
   const [facilityId, setFacilityId] = useState("");
+  const [facilityName, setFacilityName] = useState("");
   const [dates, setDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
@@ -40,24 +41,39 @@ export default function BookingForm({ refresh }) {
   /* ===========================
      LOAD APPROVED BOOKINGS
      =========================== */
-  useEffect(() => {
-    if (!facilityId || !selectedDate) return;
+const submit = () => {
+  if (!facilityName || !selectedSlot) {
+    alert("Select facility and slot");
+    return;
+  }
 
-    api.get("/bookings", {
-      headers: { Role: "MANAGER" }
-    }).then(res => {
-      const approved = res.data
-        .filter(
-          b =>
-            b.facilityId === Number(facilityId) &&
-            b.status === "APPROVED" &&
-            b.startTime.startsWith(selectedDate)
-        )
-        .map(b => b.startTime.substring(11, 16)); // "HH:mm"
+  const startHour = Number(selectedSlot.split(":")[0]);
+  const user = JSON.parse(localStorage.getItem("user"));
 
-      setBlockedSlots(approved);
-    });
-  }, [facilityId, selectedDate]);
+  api.post(
+    "/bookings",
+    {
+      citizenName,
+      facilityName,
+      startTime: `${selectedDate}T${selectedSlot}`,
+      endTime: `${selectedDate}T${String(startHour + 1).padStart(2, "0")}:00`
+    },
+    {
+      headers: {
+        Role: "CITIZEN",
+        "User-Email": user.email
+      }
+    }
+  )
+  .then(() => {
+    alert("✅ Booking requested");
+    refresh();
+    setSelectedSlot("");
+  })
+  .catch(err => {
+    alert(err.response?.data || "Booking failed");
+  });
+};
 
   /* ===========================
      SLOT GENERATION
@@ -77,37 +93,6 @@ export default function BookingForm({ refresh }) {
   }
 
   /* ===========================
-     SUBMIT BOOKING
-     =========================== */
-  const submit = () => {
-    if (!citizenName || !facilityId || !selectedSlot) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    const startHour = Number(selectedSlot.split(":")[0]);
-
-    api.post(
-      "/bookings",
-      {
-        citizenName,
-        facilityId: Number(facilityId),
-        startTime: `${selectedDate}T${selectedSlot}`,
-        endTime: `${selectedDate}T${String(startHour + 1).padStart(2, "0")}:00`
-      },
-      { headers: { Role: "CITIZEN" } }
-    )
-    .then(() => {
-      alert("✅ Booking requested");
-      refresh();
-      setSelectedSlot("");
-    })
-    .catch(err => {
-      alert(err.response?.data || "Booking failed");
-    });
-  };
-
-  /* ===========================
      UI
      =========================== */
   return (
@@ -120,8 +105,16 @@ export default function BookingForm({ refresh }) {
 
         <div>
           <label>Select Facility</label>
-          <select value={facilityId} onChange={e => setFacilityId(e.target.value)}>
-            <option value="">Select Facility</option>
+<select
+  value={facilityId}
+  onChange={e => {
+    const id = e.target.value;
+    setFacilityId(id);
+
+    const facility = facilities.find(f => f.id === Number(id));
+    setFacilityName(facility?.name || "");
+  }}
+>            <option value="">Select Facility</option>
             {facilities.map(f => (
               <option key={f.id} value={f.id}>{f.name}</option>
             ))}

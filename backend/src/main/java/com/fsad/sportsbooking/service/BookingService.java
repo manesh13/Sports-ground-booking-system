@@ -16,16 +16,11 @@ public class BookingService {
         this.repository = repository;
     }
 
-    public List<Booking> getBookingsByCitizen(String citizenName) {
-        return repository.findByCitizenName(citizenName);
-    }
+    public Booking createBooking(Booking booking, String userEmail) {
 
-
-    public Booking createBooking(Booking booking) {
-
-        boolean overlap = repository
-                .existsByFacilityIdAndStartTimeLessThanAndEndTimeGreaterThan(
-                        booking.getFacilityId(),
+        boolean overlap =
+                repository.existsByFacilityNameAndStartTimeLessThanAndEndTimeGreaterThan(
+                        booking.getFacilityName(),
                         booking.getEndTime(),
                         booking.getStartTime()
                 );
@@ -34,8 +29,14 @@ public class BookingService {
             throw new BookingException("Time slot already booked");
         }
 
+        booking.setUserEmail(userEmail);
         booking.setStatus("REQUESTED");
+
         return repository.save(booking);
+    }
+
+    public List<Booking> getMyBookings(String userEmail) {
+        return repository.findByUserEmail(userEmail);
     }
 
     public List<Booking> getAllBookings() {
@@ -43,16 +44,16 @@ public class BookingService {
     }
 
     public Booking approve(Long id) {
-        Booking booking = repository.findById(id)
-                .orElseThrow(() -> new BookingException("Booking not found"));
-        booking.setStatus("APPROVED");
-        return repository.save(booking);
+        Booking b = repository.findById(id)
+                .orElseThrow(() -> new BookingException("Not found"));
+        b.setStatus("APPROVED");
+        return repository.save(b);
     }
 
     public Booking reject(Long id) {
-        Booking booking = repository.findById(id)
-                .orElseThrow(() -> new BookingException("Booking not found"));
-        booking.setStatus("REJECTED");
-        return repository.save(booking);
+        Booking b = repository.findById(id)
+                .orElseThrow(() -> new BookingException("Not found"));
+        b.setStatus("REJECTED");
+        return repository.save(b);
     }
 }

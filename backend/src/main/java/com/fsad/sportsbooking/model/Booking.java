@@ -1,6 +1,7 @@
 package com.fsad.sportsbooking.model;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,26 +11,65 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long facilityId;
-    private String citizenName;
+    @Column(nullable = false)
+    private String userEmail;
+
+    @Column(nullable = false)
+    private String facilityName;   // ✅ STORE NAME DIRECTLY
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status; // REQUESTED, APPROVED, REJECTED
 
-    public Long getId() { return id; }
+    @Column(nullable = false)
+    private String status;
 
-    public Long getFacilityId() { return facilityId; }
-    public void setFacilityId(Long facilityId) { this.facilityId = facilityId; }
+    /* Getters & Setters */
 
-    public String getCitizenName() { return citizenName; }
-    public void setCitizenName(String citizenName) { this.citizenName = citizenName; }
+    public Long getId() {
+        return id;
+    }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public String getUserEmail() {
+        return userEmail;
+    }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getFacilityName() {
+        return facilityName;
+    }
+
+    public void setFacilityName(String facilityName) {
+        this.facilityName = facilityName;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

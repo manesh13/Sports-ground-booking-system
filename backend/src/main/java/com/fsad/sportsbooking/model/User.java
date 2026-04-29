@@ -1,13 +1,9 @@
 package com.fsad.sportsbooking.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
-@Table(name = "users")
-@Setter
-@Getter
+@Table(name = "USERS")
 public class User {
 
     @Id
@@ -21,24 +17,39 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role; // CITIZEN, MANAGER, ADMIN
+    private String role; // CITIZEN / MANAGER / ADMIN
 
-    // constructors
-    public User() {}
+    // getters and setters
 
-    public User(String email, String password, String role) {
-        this.email = email;
-        this.password = password;
-        this.role = role;
+    public Long getId() {
+        return id;
     }
 
-    // getters & setters
-    public Long getId() { return id; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
-    public String getRole() { return role; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public void setEmail(String email) { this.email = email; }
-    public void setPassword(String password) { this.password = password; }
-    public void setRole(String role) { this.role = role; }
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }
