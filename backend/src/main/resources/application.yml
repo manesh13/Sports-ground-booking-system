@@ -10,3 +10,8 @@ spring:
    ddl-auto: create
 server:
  port: 8080
+
+jwt:
+ # HS256: use a 256-bit (32+ byte) secret in production (env JWT_SECRET)
+ secret: ${JWT_SECRET:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+ expiration-ms: 86400000

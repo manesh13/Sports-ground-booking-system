@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import SlotGrid from "./SlotGrid";
-import MyBookings from "./MyBookings";
 
 export default function BookingForm({ refresh }) {
   const [citizenName, setCitizenName] = useState("");
@@ -20,6 +19,25 @@ export default function BookingForm({ refresh }) {
   useEffect(() => {
     api.get("/facilities").then(res => setFacilities(res.data));
   }, []);
+
+  useEffect(() => {
+    if (!facilityName || !selectedDate) {
+      setBlockedSlots([]);
+      return;
+    }
+    api
+      .get("/bookings/occupancy", {
+        params: { facilityName, date: selectedDate }
+      })
+      .then(res => setBlockedSlots(res.data || []))
+      .catch(() => setBlockedSlots([]));
+  }, [facilityName, selectedDate]);
+
+  useEffect(() => {
+    if (blockedSlots.includes(selectedSlot)) {
+      setSelectedSlot("");
+    }
+  }, [blockedSlots, selectedSlot]);
 
   /* ===========================
      NEXT 15 DAYS
@@ -48,27 +66,25 @@ const submit = () => {
   }
 
   const startHour = Number(selectedSlot.split(":")[0]);
-  const user = JSON.parse(localStorage.getItem("user"));
 
-  api.post(
-    "/bookings",
-    {
-      citizenName,
-      facilityName,
-      startTime: `${selectedDate}T${selectedSlot}`,
-      endTime: `${selectedDate}T${String(startHour + 1).padStart(2, "0")}:00`
-    },
-    {
-      headers: {
-        Role: "CITIZEN",
-        "User-Email": user.email
-      }
-    }
-  )
+  api.post("/bookings", {
+    citizenName,
+    facilityName,
+    startTime: `${selectedDate}T${selectedSlot}`,
+    endTime: `${selectedDate}T${String(startHour + 1).padStart(2, "0")}:00`
+  })
   .then(() => {
     alert("✅ Booking requested");
     refresh();
     setSelectedSlot("");
+    if (facilityName && selectedDate) {
+      api
+        .get("/bookings/occupancy", {
+          params: { facilityName, date: selectedDate }
+        })
+        .then(res => setBlockedSlots(res.data || []))
+        .catch(() => {});
+    }
   })
   .catch(err => {
     alert(err.response?.data || "Booking failed");

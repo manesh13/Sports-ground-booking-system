@@ -11,7 +11,11 @@ export default function MyBookings({ refreshTrigger }) {
   }, [refreshTrigger]);
 
   if (bookings.length === 0) {
-    return <p>No bookings yet</p>;
+    return (
+      <div className="bookings-scroll bookings-scroll--empty">
+        <p>No bookings yet</p>
+      </div>
+    );
   }
 
   return (

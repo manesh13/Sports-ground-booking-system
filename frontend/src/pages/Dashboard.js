@@ -61,21 +61,25 @@ const loadUsers = () => {
       </div>
 
       <div className="content-center">
-        <div className="grid">
+        <div
+          className={
+            user.role === "CITIZEN" ? "grid grid--citizen" : "grid"
+          }
+        >
 
           {/* ===========================
              CITIZEN DASHBOARD
              =========================== */}
           {user.role === "CITIZEN" && (
             <>
-              <div className="card">
+              <div className="card card-citizen card-citizen--form">
                 <BookingForm
                   user={user}
                   refresh={() => setRefreshKey(prev => prev + 1)}
                 />
               </div>
 
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Your Bookings</h2>
                 <MyBookings refreshTrigger={refreshKey} />
               </div>

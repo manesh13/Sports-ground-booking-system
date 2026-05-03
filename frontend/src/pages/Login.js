@@ -12,8 +12,14 @@ export default function Login({ onLogin, goToSignup }) {
 
     api.post("/users/login", { email, password })
       .then(res => {
-        onLogin(res.data);
-        localStorage.setItem("user", JSON.stringify(res.data));
+        const session = {
+          token: res.data.token,
+          id: res.data.id,
+          email: res.data.email,
+          role: res.data.role
+        };
+        onLogin(session);
+        localStorage.setItem("user", JSON.stringify(session));
       })
       .catch(() => {
         // ✅ Single friendly error message
