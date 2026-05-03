@@ -3,7 +3,11 @@ package com.fsad.sportsbooking.service;
 import com.fsad.sportsbooking.model.User;
 import com.fsad.sportsbooking.model.UserRole;
 import com.fsad.sportsbooking.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -11,29 +15,37 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository repo;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repo) {
+    public UserService(UserRepository repo, PasswordEncoder passwordEncoder) {
         this.repo = repo;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // ✅ Register user with role
     public User register(User user) {
-        if (repo.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("User already exists");
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
         }
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
+        }
+        if (repo.findByEmail(user.getEmail().trim()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+        }
+        user.setEmail(user.getEmail().trim());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return repo.save(user);
     }
 
-    // ✅ Login check
     public User login(String email, String password) {
         User user = repo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
-        if (!user.getPassword().equals(password)) {
-            throw new RuntimeException("Invalid password");
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BadCredentialsException("Invalid credentials");
         }
 
-        return user; // includes role
+        return user;
     }
 
 

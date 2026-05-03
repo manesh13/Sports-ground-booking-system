@@ -17,6 +17,8 @@
   --slot-bg: #e3f2fd;
   --slot-hover: #bbdefb;
   --slot-active: #1976d2;
+  --slot-booked-bg: #ffcdd2;
+  --slot-booked-text: #b71c1c;
 
   --date-bg: #eef3fb;
   --date-hover: #dde8fb;
@@ -49,6 +51,8 @@ body.dark {
   --slot-bg: #2a3446;     /* ✅ dark slate blue */
   --slot-hover: #364159;
   --slot-active: #1976d2;
+  --slot-booked-bg: #5c3338;
+  --slot-booked-text: #ffcdd2;
 
 
   --date-bg: #2a2a2a;
@@ -64,16 +68,35 @@ body.dark {
    GLOBAL
    ====================================================== */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg);
   color: var(--text);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+button {
+  touch-action: manipulation;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 30px;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  line-height: 1.25;
 }
 
 /* ======================================================
@@ -81,18 +104,29 @@ h1 {
    ====================================================== */
 
 .container {
-  width: 100%;        /* ✅ allow full screen width */
-  max-width: none;   /* ✅ remove constraint */
+  width: 100%;
+  max-width: 1280px;
   margin: auto;
-  padding: 30px;
+  padding: clamp(16px, 4vw, 30px);
+  padding-top: max(16px, env(safe-area-inset-top));
 }
 
 .grid {
   display: flex;
-  gap: 32px;
+  gap: clamp(16px, 3vw, 32px);
   justify-content: center;
-  align-items: flex-start;
-  flex-wrap: nowrap;   /* ✅ KEEP BOTH CARDS ON SAME ROW */
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+/* Two-column responsive grid (citizen, manager, admin) — stacks when viewport is narrow */
+.grid--two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+  gap: clamp(16px, 3vw, 32px);
+  width: 100%;
+  justify-items: center;
+  align-items: stretch;
 }
 
 /* ======================================================
@@ -101,17 +135,20 @@ h1 {
 
 .card {
   background: var(--card-bg);
-  padding: 18px;                 /* ⬇ reduced from 24px */
+  padding: clamp(14px, 3vw, 18px);
   border-radius: 14px;
   box-shadow: var(--shadow);
-  width: 520px;        /* ✅ SAME SIZE LEFT & RIGHT */
+  width: 100%;
   max-width: 520px;
-  min-height: 520px;
+  min-height: min(520px, 75vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-
 
 .card h2 {
   margin-top: 0;
+  font-size: clamp(1.05rem, 2.8vw, 1.25rem);
 }
 
 /* ======================================================
@@ -126,11 +163,13 @@ h1 {
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
 }
 
 .row > div {
-  flex: 1;
+  flex: 1 1 160px;
+  min-width: 0;
 }
 
 .form label {
@@ -154,6 +193,33 @@ select {
   color: var(--text);
   font-size: 14px;
   box-sizing: border-box;
+}
+
+/*
+ * Native outline inside overflow:auto ancestors (e.g. citizen booking form) draws
+ * misaligned in Chromium/WebKit. Use box-shadow for a centered :focus-visible ring.
+ */
+input:not([type="checkbox"]):focus,
+select:focus {
+  outline: none;
+}
+
+input:not([type="checkbox"]):focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 32%, transparent);
+}
+
+body.dark input:not([type="checkbox"]):focus-visible,
+body.dark select:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+.auth-card .input-error:focus-visible,
+.card-citizen .input-error:focus-visible {
+  border-color: #e53935;
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.35);
 }
 
 /* Remove native select weird spacing */
@@ -226,7 +292,7 @@ select {
 
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
   gap: 10px;
 }
 
@@ -255,6 +321,24 @@ select {
   background: var(--slot-active);
   color: white;
   font-weight: 600;
+}
+
+.slot.slot-booked {
+  background: var(--slot-booked-bg);
+  color: var(--slot-booked-text);
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+.slot.slot-booked:hover {
+  background: var(--slot-booked-bg);
+}
+
+.slot.slot-booked.active {
+  background: var(--slot-booked-bg);
+  color: var(--slot-booked-text);
+  font-weight: 500;
 }
 
 /* ======================================================
@@ -347,8 +431,8 @@ select {
 
 .theme-switch {
   position: fixed;
-  top: 18px;
-  right: 18px;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
   z-index: 9999;
 
   display: flex;
@@ -424,16 +508,19 @@ select {
    ========================== */
 
 .auth-container {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: max(56px, env(safe-area-inset-top)) 0 max(24px, env(safe-area-inset-bottom));
 }
 
 .auth-card {
   background: var(--card-bg);
-  padding: 30px;
-  width: 320px;
+  padding: clamp(20px, 5vw, 30px);
+  width: min(100%, 400px);
+  max-width: calc(100vw - 32px);
+  margin: 0 16px;
   border-radius: 12px;
   box-shadow: var(--shadow);
   display: flex;
@@ -482,10 +569,11 @@ select {
    ========================== */
 
 .content-center {
-  min-height: auto;              /* ✅ remove forced tall area */
+  width: 100%;
+  min-height: auto;
   display: flex;
   justify-content: center;
-  align-items: flex-start;       /* ✅ allow natural top flow */
+  align-items: flex-start;
   margin-top: 20px;
 }
 
@@ -525,25 +613,6 @@ select {
   font-weight: 500;
   margin-bottom: 10px;
   text-align: center;
-}
-
-/* ==========================
-   CARD (SINGLE SOURCE OF TRUTH)
-   ========================== */
-
-.card {
-  background: var(--card-bg);
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: var(--shadow);
-
-  width: 520px;
-  max-width: 520px;
-  height: 560px;
-
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* ✅ keeps content inside */
 }
 
 /* ==========================
@@ -657,4 +726,201 @@ body.dark .delete-btn:hover {
 
 .booking-card p:last-of-type {
   margin-bottom: 8px;
+}
+
+/* ======================================================
+   CITIZEN DASHBOARD (fluid on phones / tablets)
+   ====================================================== */
+
+.card-citizen {
+  min-height: auto;
+  height: auto;
+  overflow: visible;
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
+}
+
+.card-citizen--form,
+.card-citizen--list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.card-citizen--list > h2 {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.card-citizen--list .bookings-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(52vh, 440px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bookings-scroll--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-citizen--form .form {
+  width: 100%;
+  min-width: 0;
+}
+
+.card-citizen .date-strip {
+  scroll-padding-inline: 8px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* ======================================================
+   RESPONSIVE (mobile-first + large screens)
+   ====================================================== */
+
+@media (max-width: 900px) {
+  .card-citizen .form .row {
+    flex-direction: column;
+  }
+
+  .card-citizen .form .row > div {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .card-citizen {
+    max-width: 100%;
+  }
+
+  .card-citizen .slot-grid {
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  h1 {
+    padding-right: 100px;
+    padding-left: 12px;
+    margin-bottom: 16px;
+  }
+
+  .logout-container {
+    margin: 12px 0 20px;
+    padding: 0 8px;
+  }
+
+  .logout-btn {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .primary-btn {
+    min-height: 44px;
+    padding: 12px 14px;
+  }
+
+  .slot {
+    padding: 12px 8px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .actions button {
+    flex: 1 1 calc(50% - 4px);
+    min-height: 40px;
+    margin-right: 0;
+  }
+
+  .date-tile {
+    width: 68px;
+    padding: 8px 4px;
+  }
+
+  .card-citizen .slot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-citizen .slot {
+    font-size: 11px;
+    padding: 10px 6px;
+    line-height: 1.25;
+    hyphens: auto;
+  }
+
+  .card-citizen--list .bookings-scroll {
+    max-height: min(48vh, 320px);
+  }
+
+  .theme-switch {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  .theme-switch .icon {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1119px) {
+  .card {
+    max-width: min(520px, 100%);
+  }
+}
+
+/* Side‑by‑side flex for non-dashboard grids only; stacked dashboards use grid--two-col */
+@media (min-width: 1120px) {
+  .grid:not(.grid--two-col) {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+}
+
+/* Equal-height panels + internal scroll when two columns fit */
+@media (min-width: 1180px) {
+  .grid--two-col {
+    grid-template-columns: repeat(2, minmax(0, 520px));
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  /* Shared by citizen/manager/admin column cards */
+  .card-citizen {
+    --citizen-card-h: min(560px, 72vh);
+    height: var(--citizen-card-h);
+    min-height: var(--citizen-card-h);
+    max-height: var(--citizen-card-h);
+    overflow: hidden;
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .card-citizen--form .form {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+  }
+
+  .card-citizen--list .bookings-scroll {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
 }

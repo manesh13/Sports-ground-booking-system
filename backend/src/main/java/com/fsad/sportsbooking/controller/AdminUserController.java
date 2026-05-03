@@ -1,8 +1,9 @@
 package com.fsad.sportsbooking.controller;
 
 import com.fsad.sportsbooking.model.User;
-import com.fsad.sportsbooking.model.UserRole;
 import com.fsad.sportsbooking.repository.UserRepository;
+import com.fsad.sportsbooking.security.AuthenticatedUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,26 @@ public class AdminUserController {
         this.repo = repo;
     }
 
-    /* =========================
-       ADMIN: Get users by role
-       ========================= */
     @GetMapping
     public List<User> getUsersByRole(
             @RequestParam String role,
-            @RequestHeader("Role") String requesterRole
+            @AuthenticationPrincipal AuthenticatedUser auth
     ) {
-        if (!requesterRole.equalsIgnoreCase("ADMIN")) {
+        if (!auth.getRole().equalsIgnoreCase("ADMIN")) {
             throw new RuntimeException("Access denied");
         }
         return repo.findAll()
                 .stream()
-                .filter(u -> !Objects.equals(u.getRole(), UserRole.ADMIN.toString()))
+                .filter(u -> !Objects.equals(u.getRole(), "ADMIN"))
                 .toList();
-
     }
 
-    /* =========================
-       ADMIN: Delete user
-       ========================= */
     @DeleteMapping("/{id}")
     public void deleteUser(
             @PathVariable Long id,
-            @RequestHeader("Role") String requesterRole
+            @AuthenticationPrincipal AuthenticatedUser auth
     ) {
-        if (!requesterRole.equalsIgnoreCase("ADMIN")) {
+        if (!auth.getRole().equalsIgnoreCase("ADMIN")) {
             throw new RuntimeException("Access denied");
         }
 

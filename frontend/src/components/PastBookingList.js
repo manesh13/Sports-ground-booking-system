@@ -4,7 +4,11 @@ export default function PastBookingList({ bookings }) {
   );
 
   if (pastBookings.length === 0) {
-    return <p>No past requests</p>;
+    return (
+      <div className="bookings-scroll bookings-scroll--empty">
+        <p>No past requests</p>
+      </div>
+    );
   }
 
   return (

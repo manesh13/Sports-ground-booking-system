@@ -19,6 +19,20 @@ export default function App() {
     }
   }, []);
 
+  // ✅ Restore session (JWT) on refresh
+  useEffect(() => {
+    const raw = localStorage.getItem("user");
+    if (!raw) return;
+    try {
+      const u = JSON.parse(raw);
+      if (u?.token && u?.email) {
+        setUser(u);
+      }
+    } catch {
+      localStorage.removeItem("user");
+    }
+  }, []);
+
   // ✅ Sync theme
   useEffect(() => {
     document.body.classList.toggle("dark", dark);

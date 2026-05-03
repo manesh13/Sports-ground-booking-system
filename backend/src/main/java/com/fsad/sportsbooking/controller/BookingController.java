@@ -2,10 +2,14 @@ package com.fsad.sportsbooking.controller;
 
 import com.fsad.sportsbooking.model.Booking;
 import com.fsad.sportsbooking.model.UserRole;
+import com.fsad.sportsbooking.security.AuthenticatedUser;
 import com.fsad.sportsbooking.service.BookingService;
 import com.fsad.sportsbooking.service.RoleValidator;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,66 +23,52 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    /* =========================
-       CITIZEN: Create booking
-       ========================= */
     @PostMapping
     public Booking create(
-            @RequestHeader("User-Email") String userEmail,
-            @RequestHeader("Role") String role,
+            @AuthenticationPrincipal AuthenticatedUser auth,
             @RequestBody Booking booking
     ) {
-        RoleValidator.requireRole(role, UserRole.CITIZEN);
-        return bookingService.createBooking(booking, userEmail);
+        RoleValidator.requireRole(auth.getRole(), UserRole.CITIZEN);
+        return bookingService.createBooking(booking, auth.getEmail());
     }
 
-
-
-    /* =========================
-       CITIZEN: Own bookings
-       ========================= */
     @GetMapping("/my")
-    public List<Booking> myBookings(
-            @RequestHeader("User-Email") String userEmail,
-            @RequestHeader("Role") String role
-    ) {
-        RoleValidator.requireRole(role, UserRole.CITIZEN);
-        return bookingService.getMyBookings(userEmail);
+    public List<Booking> myBookings(@AuthenticationPrincipal AuthenticatedUser auth) {
+        RoleValidator.requireRole(auth.getRole(), UserRole.CITIZEN);
+        return bookingService.getMyBookings(auth.getEmail());
     }
 
-
-    /* =========================
-       MANAGER/ADMIN: All bookings
-       ========================= */
-    @GetMapping
-    public List<Booking> allBookings(
-            @RequestHeader("Role") String role
+    @GetMapping("/occupancy")
+    public List<String> occupancy(
+            @RequestParam String facilityName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @AuthenticationPrincipal AuthenticatedUser auth
     ) {
-        RoleValidator.requireRole(role, UserRole.MANAGER);
+        RoleValidator.requireRole(auth.getRole(), UserRole.CITIZEN);
+        return bookingService.getBookedSlotStarts(facilityName, date);
+    }
+
+    @GetMapping
+    public List<Booking> allBookings(@AuthenticationPrincipal AuthenticatedUser auth) {
+        RoleValidator.requireRole(auth.getRole(), UserRole.MANAGER);
         return bookingService.getAllBookings();
     }
 
-    /* =========================
-       MANAGER: Approve
-       ========================= */
     @PutMapping("/{id}/approve")
     public Booking approve(
             @PathVariable Long id,
-            @RequestHeader("Role") String role
+            @AuthenticationPrincipal AuthenticatedUser auth
     ) {
-        RoleValidator.requireRole(role, UserRole.MANAGER);
+        RoleValidator.requireRole(auth.getRole(), UserRole.MANAGER);
         return bookingService.approve(id);
     }
 
-    /* =========================
-       MANAGER: Reject
-       ========================= */
     @PutMapping("/{id}/reject")
     public Booking reject(
             @PathVariable Long id,
-            @RequestHeader("Role") String role
+            @AuthenticationPrincipal AuthenticatedUser auth
     ) {
-        RoleValidator.requireRole(role, UserRole.MANAGER);
+        RoleValidator.requireRole(auth.getRole(), UserRole.MANAGER);
         return bookingService.reject(id);
     }
 }

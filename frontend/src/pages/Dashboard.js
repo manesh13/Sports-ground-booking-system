@@ -61,21 +61,27 @@ const loadUsers = () => {
       </div>
 
       <div className="content-center">
-        <div className="grid">
+        <div
+          className={
+            ["CITIZEN", "MANAGER", "ADMIN"].includes(user.role)
+              ? "grid grid--two-col"
+              : "grid"
+          }
+        >
 
           {/* ===========================
              CITIZEN DASHBOARD
              =========================== */}
           {user.role === "CITIZEN" && (
             <>
-              <div className="card">
+              <div className="card card-citizen card-citizen--form">
                 <BookingForm
                   user={user}
                   refresh={() => setRefreshKey(prev => prev + 1)}
                 />
               </div>
 
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Your Bookings</h2>
                 <MyBookings refreshTrigger={refreshKey} />
               </div>
@@ -87,7 +93,7 @@ const loadUsers = () => {
              =========================== */}
           {user.role === "MANAGER" && (
             <>
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Pending Approvals</h2>
                 <ManagerBookingList
                   bookings={bookings}
@@ -95,7 +101,7 @@ const loadUsers = () => {
                 />
               </div>
 
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Past Requests</h2>
                 <PastBookingList bookings={bookings} />
               </div>
@@ -107,7 +113,7 @@ const loadUsers = () => {
              =========================== */}
           {user.role === "ADMIN" && (
             <>
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Registered Users</h2>
                 <UserList
                   users={users}
@@ -116,7 +122,7 @@ const loadUsers = () => {
                 />
               </div>
 
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Managers</h2>
                 <UserList
                   users={managers}

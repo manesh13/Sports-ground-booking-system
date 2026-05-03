@@ -8,7 +8,7 @@ public class RoleValidator {
     public static void requireRole(String role, UserRole expected) {
 
         if (role == null) {
-            throw new BookingException("Role header missing");
+            throw new BookingException("Authentication required");
         }
 
         UserRole actual;

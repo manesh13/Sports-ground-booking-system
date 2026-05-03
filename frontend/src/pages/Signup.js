@@ -21,10 +21,17 @@ export default function Signup({ goToLogin }) {
       goToLogin();
     })
     .catch(err => {
-      if (err.response?.status === 409) {
+      const status = err.response?.status;
+      const body = err.response?.data;
+      const message =
+        typeof body === "string" ? body : body?.message || err.message;
+
+      if (status === 409) {
         setError("User already exists");
+      } else if (status === 400 && message) {
+        setError(message);
       } else {
-        setError("Failed to create account");
+        setError(message || "Failed to create account");
       }
     });
   };

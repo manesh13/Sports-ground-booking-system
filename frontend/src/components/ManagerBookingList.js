@@ -17,8 +17,13 @@ export default function ManagerBookingList({ bookings, refresh }) {
   );
 
   return (
-    <div className="bookings-scroll"> {/* ✅ SCROLL CONTAINER */}
-
+    <div
+      className={
+        pendingBookings.length === 0
+          ? "bookings-scroll bookings-scroll--empty"
+          : "bookings-scroll"
+      }
+    >
       {pendingBookings.length === 0 && (
         <p>No bookings pending for approval</p>
       )}
