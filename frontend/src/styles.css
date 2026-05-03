@@ -119,8 +119,8 @@ h1 {
   flex-wrap: wrap;
 }
 
-/* Citizen: CSS Grid — collapses to one column when two 520px cards + padding won’t fit */
-.grid--citizen {
+/* Two-column responsive grid (citizen, manager, admin) — stacks when viewport is narrow */
+.grid--two-col {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
   gap: clamp(16px, 3vw, 32px);
@@ -882,23 +882,23 @@ body.dark .delete-btn:hover {
   }
 }
 
-/* Side‑by‑side flex only for manager/admin when viewport fits; never force citizen (avoids clipped column) */
+/* Side‑by‑side flex for non-dashboard grids only; stacked dashboards use grid--two-col */
 @media (min-width: 1120px) {
-  .grid:not(.grid--citizen) {
+  .grid:not(.grid--two-col) {
     flex-wrap: nowrap;
     align-items: flex-start;
   }
 }
 
-/* Tall citizen cards only when two columns actually show (enough width for both) */
+/* Equal-height panels + internal scroll when two columns fit */
 @media (min-width: 1180px) {
-  .grid--citizen {
+  .grid--two-col {
     grid-template-columns: repeat(2, minmax(0, 520px));
     justify-content: center;
     align-items: stretch;
   }
 
-  /* Same height for both citizen cards; scroll inside each column */
+  /* Shared by citizen/manager/admin column cards */
   .card-citizen {
     --citizen-card-h: min(560px, 72vh);
     height: var(--citizen-card-h);

@@ -11,13 +11,17 @@ export default function UserList({ users, refresh, allowDelete }) {
   };
 
   if (!users || users.length === 0) {
-    return <p>No users found</p>;
+    return (
+      <div className="bookings-scroll bookings-scroll--empty">
+        <p>No users found</p>
+      </div>
+    );
   }
 
   return (
     <div className="bookings-scroll">
       {users.map(u => (
-<div className="booking-card">
+<div key={u.id} className="booking-card">
   <p><b>Email:</b> {u.email}</p>
   <p><b>Role:</b> {u.role}</p>
 

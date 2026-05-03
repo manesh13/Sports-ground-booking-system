@@ -63,7 +63,9 @@ const loadUsers = () => {
       <div className="content-center">
         <div
           className={
-            user.role === "CITIZEN" ? "grid grid--citizen" : "grid"
+            ["CITIZEN", "MANAGER", "ADMIN"].includes(user.role)
+              ? "grid grid--two-col"
+              : "grid"
           }
         >
 
@@ -91,7 +93,7 @@ const loadUsers = () => {
              =========================== */}
           {user.role === "MANAGER" && (
             <>
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Pending Approvals</h2>
                 <ManagerBookingList
                   bookings={bookings}
@@ -99,7 +101,7 @@ const loadUsers = () => {
                 />
               </div>
 
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Past Requests</h2>
                 <PastBookingList bookings={bookings} />
               </div>
@@ -111,7 +113,7 @@ const loadUsers = () => {
              =========================== */}
           {user.role === "ADMIN" && (
             <>
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Registered Users</h2>
                 <UserList
                   users={users}
@@ -120,7 +122,7 @@ const loadUsers = () => {
                 />
               </div>
 
-              <div className="card">
+              <div className="card card-citizen card-citizen--list">
                 <h2>Managers</h2>
                 <UserList
                   users={managers}
