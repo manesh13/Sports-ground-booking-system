@@ -82,8 +82,8 @@ Sports-ground-booking-system/
 
 ### Prerequisites
 
-- Java JDK 8 or above
-- Git
+- Java JDK 21
+- nodejs 17+
 - IDE: IntelliJ IDEA / Eclipse
 - Browser (Chrome/Firefox)
 
